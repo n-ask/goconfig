@@ -15,7 +15,7 @@ func Load(data interface{}) error {
 	t := v.Type()
 	for i := 0; i < t.NumField(); i++ {
 		f := v.Field(i)
-		key := t.Field(i).Tag.Get("config")
+		key := t.Field(i).Tag.Get("env")
 		if key == "" {
 			continue
 		}
