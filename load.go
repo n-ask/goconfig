@@ -2,10 +2,14 @@ package goconfig
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 )
+
+const defaultSeporator = ","
 
 func Load(data interface{}) error {
 	v := reflect.ValueOf(data).Elem()
@@ -20,6 +24,7 @@ func Load(data interface{}) error {
 			continue
 		}
 		if !f.CanSet() {
+			log.Default().Printf("cannot set field %s\n", key)
 			continue
 		}
 		s := os.Getenv(key)
@@ -55,7 +60,19 @@ func Load(data interface{}) error {
 			} else if n, err = strconv.ParseFloat(s, 64); err == nil {
 				f.SetFloat(n)
 			}
+		case reflect.Slice:
+			sep := t.Field(i).Tag.Get("sep")
+			if len(sep) == 0 {
+				sep = defaultSeporator
+			}
+			if s == "" {
+				f.Set(reflect.ValueOf([]string{}))
+			} else {
+				f.Set(reflect.ValueOf(strings.Split(s, sep)))
+			}
+
 		default:
+			log.Default().Printf("Unsupported field type: %s\n", f.Kind().String())
 			continue
 		}
 		if err != nil {

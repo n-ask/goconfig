@@ -3,14 +3,16 @@
 struct tags and mapping them to runtime environmental variables
 </h3>
 
-`goconfig` package uses the struct tag `config` to define the struct
+`goconfig` package uses the struct tag `env` to define the struct. For string slices you can define the separator with the tag `sep`
 
 Example Struct
 
 ```go
 var Config struct {
-Address string `env:"LISTEN_ADDRESS"`
-Port    int    `env:"PORT"`
+Address         string   `env:"LISTEN_ADDRESS"`
+Port            int      `env:"PORT"`
+AllowedUsername []string `env:"ALLOWED_USERSNAMES"`
+BootstapAdmins  []string `env:"BOOTSTRAP_ADMINS" sep:"||"`
 
 PrivateRepo string `env:"PRIVATE_REPO"`
 GoProxy     string `env:"GO_PROXY"`
