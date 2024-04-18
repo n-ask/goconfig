@@ -9,8 +9,36 @@ import (
 	"strings"
 )
 
-const defaultSeporator = ","
+const defaultSeparator = ","
 
+// Load updates the fields of the given struct with values from environment variables.
+// It takes a pointer to a struct as an argument and modifies its fields based on the "env" tags defined for each field.
+// The function supports fields of types string, bool, int, uint, float, and slice.
+// For string fields, the corresponding environment variable is directly assigned to the field.
+// For bool fields, the value is parsed from the environment variable using strconv.ParseBool().
+// For int, uint, and float fields, the values are parsed from the environment variable using strconv.ParseInt() and strconv.ParseUint().
+// For slice fields, the value is split based on a separator defined in the "sep" tag, or defaulting to a comma if the tag is not present.
+// The function returns an error if there is a failure in loading any of the environment variables.
+//
+// Example usage:
+//
+//	type Config struct {
+//	    Name  string `env:"APP_NAME"`
+//	    Port  int    `env:"PORT"`
+//	    Admin bool   `env:"ENABLE_ADMIN"`
+//	    Roles []string `env:"ALLOWED_ROLES" sep:";"`
+//	}
+//
+// var cfg Config
+//
+//	if err := Load(&cfg); err != nil {
+//	    log.Fatal(err)
+//	}
+//
+// fmt.Println(cfg.Name)
+// fmt.Println(cfg.Port)
+// fmt.Println(cfg.Admin)
+// fmt.Println(cfg.Roles)
 func Load(data interface{}) error {
 	v := reflect.ValueOf(data).Elem()
 	if v.Kind() != reflect.Struct {
@@ -63,7 +91,7 @@ func Load(data interface{}) error {
 		case reflect.Slice:
 			sep := t.Field(i).Tag.Get("sep")
 			if len(sep) == 0 {
-				sep = defaultSeporator
+				sep = defaultSeparator
 			}
 			if s == "" {
 				f.Set(reflect.ValueOf([]string{}))
